@@ -1,30 +1,20 @@
-import pyglet
+import random, sys, pyglet
 from pyglet.window import key
 
-import random
-import sys
-
-__module_name__ = 'tetris'
-__module_description__ = 'a clone of tetris written in python'
-__version__ = (0, 1, 0)
-
-# these are the dimensions from the gameboy version
-BOARD_WIDTH = 14
+BOARD_WIDTH = 13
 BOARD_HEIGHT = 20
 
 BLOCK_EMPTY = 0
 BLOCK_FULL = 1
 BLOCK_ACTIVE = 2
-BLOCK_IMG_FILE = 'img/block.png'
 
-block = pyglet.image.load(BLOCK_IMG_FILE)
+block = pyglet.image.load('img/k764818665.jpg')
 block_sprite = pyglet.sprite.Sprite(block)
 
 BLOCK_WIDTH = block.width
 BLOCK_HEIGHT = block.height
 
-window = pyglet.window.Window(width=BOARD_WIDTH*BLOCK_WIDTH,
-                              height=BOARD_HEIGHT*BLOCK_HEIGHT)
+window = pyglet.window.Window(width=BOARD_WIDTH*BLOCK_WIDTH,height=BOARD_HEIGHT*BLOCK_HEIGHT)
 
 class Shape(object):
     _shapes = [
@@ -35,30 +25,30 @@ class Shape(object):
         [[0, 0, 0, 0], [0, 0, 1, 0], [0, 1, 1, 0], [0, 1, 0, 0]],
         [[0, 0, 0, 0], [0, 1, 0, 0], [0, 1, 1, 0], [0, 0, 1, 0]],
     ]
-    
+
     def __init__(self, x=0, y=0):
         self.shape = random.choice(self._shapes)
         self.shape = self.copy_shape()
-        
+
         for i in range(random.choice(range(4))):
             self.rotate()
-        
+
         self.x = x
         self.y = y
-    
+
     def copy_shape(self):
         new_shape = []
         for row in self.shape:
             new_shape.append(row[:])
         return new_shape
-    
+
     def clone(self):
         cloned = Shape()
         cloned.shape = self.copy_shape()
         cloned.x = self.x
         cloned.y = self.y
         return cloned
-    
+
     def rotate(self):
         new_shape = self.copy_shape()
         for j in range(0, 4):
@@ -115,8 +105,9 @@ class Board(pyglet.event.EventDispatcher):
         self.pending_shape = Shape()
         
         if self.is_collision():
-            self.reset()
             self.dispatch_event('on_game_over')
+            self.reset()
+
     
     def rotate_shape(self):
         rotated_shape = self.active_shape.clone()
@@ -288,8 +279,8 @@ class Game(object):
     def on_lines(self, num_lines):
         self.score += (num_lines * self.level)
         self.lines += num_lines
-        if self.lines / 10 > self.level:
-            self.level = self.lines / 10
+        if self.lines / 5 > self.level:
+            self.level = self.lines / 5
     
     def on_game_over(self):
         self.reset()
@@ -331,5 +322,6 @@ def on_key_press(key_pressed, mod):
 def update(dt):
     game.cycle()
 
+pyglet.gl.glClearColor(0, 0, 255, 255)
 pyglet.clock.schedule_interval(update, 1 / game.frame_rate)
 pyglet.app.run()
